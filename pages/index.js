@@ -35,7 +35,7 @@ export default function Home() {
                   <button className='button is-primary is-large is-light mt-3'>Pick Winner</button>
                 </section>
               </div>
-              <div className='column is-one-thirds'>
+              <div className={`${styles.lotteryinfo} column is-one-thirds`}>
                 <section className='mt-5'>
                   <div className='card'>
                     <div className='card-content'>
@@ -49,6 +49,30 @@ export default function Home() {
                             </a>
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section className='mt-5'>
+                  <div className='card'>
+                    <div className='card-content'>
+                      <div className='content'>
+                        <h2>Players (1)</h2>
+                        <div>
+                          <a href='https://etherscan.io/address/0xB80E6542b88fBF5d291c46286F2DeA7C30BEdAe3' target="_blank">
+                            0xB80E6542b88fBF5d291c46286F2DeA7C30BEdAe3
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section className='mt-5'>
+                  <div className='card'>
+                    <div className='card-content'>
+                      <div className='content'>
+                        <h2>Pot</h2>
+                        <p>10 ETH</p>
                       </div>
                     </div>
                   </div>

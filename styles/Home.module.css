@@ -5,7 +5,10 @@
   font-size: 3em;
   font-weight: bold;
   color: black;
-  
+
+}
+.lotteryinfo a {
+  font-size: 0.9em;
 }
 
 .footer {
