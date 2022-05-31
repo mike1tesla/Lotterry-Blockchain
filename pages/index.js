@@ -1,12 +1,58 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Web3 from 'web3'
+import lotteryContract from '../blockchain/lottery'
 import styles from '../styles/Home.module.css'
 import "bulma/css/bulma.css"
 
 export default function Home() {
   const [web3, setWeb3] = useState()
   const [address, setAddress] = useState()
+  const [lcContract, setLcContract] = useState()
+  const [lotteryPot, setLotteryPot] = useState()
+  const [lotteryPlayers, setPlayers] = useState([])
+  const [error, setError] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
+
+  useEffect(() => {
+    if (lcContract) getPot()
+    if (lcContract) getPlayers()
+  }, [lcContract])
+
+  const getPot = async () => {
+    const pot = await lcContract.methods.getBalance().call()
+    setLotteryPot(web3.utils.fromWei(pot, 'ether'))
+  }
+
+  const getPlayers = async () => {
+    const players = await lcContract.methods.getPlayers().call()
+    setPlayers(players)
+  }
+
+  const enterLotteryHandler = async () => {
+    try {
+      await lcContract.methods.enter().send({
+        from: address,
+        value: '15000000000000000',
+        gas: 300000,
+        gasPrice: null
+      })
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const pickWinnerHandler = async () => {
+    try {
+      await lcContract.methods.pickWinner().send({
+        from: address,
+        gas: 300000,
+        gasPrice: null
+      })
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   const connectWalLetHandler = async () => {
     // check MetaMask is installed
@@ -22,9 +68,13 @@ export default function Home() {
         const accounts = await web3.eth.getAccounts()
         // set accounts 1 to React state 
         setAddress(accounts[0])
+
+        //create local contract copy
+        const lc = lotteryContract(web3)
+        setLcContract(lc)
       }
       catch (err) {
-        console.log(err.message);
+        setError(err.message);
       }
     }
     else {
@@ -32,6 +82,7 @@ export default function Home() {
       console.log("Please install MetaMask")
     }
   }
+
   return (
     <div>
       <Head>
@@ -57,11 +108,21 @@ export default function Home() {
               <div className='column is-two-thirds'>
                 <section className='mt-5'>
                   <p>Enter the Lottery by sending 0.01 Ehter</p>
-                  <button className='button is-link is-large is-light mt-3'>Play now</button>
+                  <button onClick={enterLotteryHandler} className='button is-link is-large is-light mt-3'>Play now</button>
                 </section>
                 <section className='mt-5'>
                   <p><b>Admin only:</b> Pick winner</p>
-                  <button className='button is-primary is-large is-light mt-3'>Pick Winner</button>
+                  <button onClick={pickWinnerHandler} className='button is-primary is-large is-light mt-3'>Pick Winner</button>
+                </section>
+                <section>
+                  <div className='container has-text-danger mt-6'>
+                    <p>{error}</p>
+                  </div>
+                </section>
+                <section>
+                  <div className='container has-text-success mt-6'>
+                    <p>{successMsg}</p>
+                  </div>
                 </section>
               </div>
               <div className={`${styles.lotteryinfo} column is-one-thirds`}>
@@ -86,12 +147,20 @@ export default function Home() {
                   <div className='card'>
                     <div className='card-content'>
                       <div className='content'>
-                        <h2>Players (1)</h2>
-                        <div>
-                          <a href='https://etherscan.io/address/0xB80E6542b88fBF5d291c46286F2DeA7C30BEdAe3' target="_blank">
-                            0xB80E6542b88fBF5d291c46286F2DeA7C30BEdAe3
-                          </a>
-                        </div>
+                        <h2>Players ({lotteryPlayers.length})</h2>
+                        <ul className='ml-0'>
+                          <div>
+                            {
+                              (lotteryPlayers && lotteryPlayers.length > 0) && lotteryPlayers.map((player) => {
+                                return <li key={`${player}-${Math.floor(Math.random() * 100) + 1}`}>
+                                  <a href={`https://etherscan.io/address/${player}`} target="_blank">
+                                    {player}
+                                  </a>
+                                </li>
+                              })
+                            }
+                          </div>
+                        </ul>
                       </div>
                     </div>
                   </div>
@@ -101,7 +170,7 @@ export default function Home() {
                     <div className='card-content'>
                       <div className='content'>
                         <h2>Pot</h2>
-                        <p>10 ETH</p>
+                        <p>{lotteryPot} ETH</p>
                       </div>
                     </div>
                   </div>
