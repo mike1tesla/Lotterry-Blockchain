@@ -63,6 +63,7 @@ module.exports = {
     //   from: <address>,        // Account to send transactions from (default: accounts[0])
     //   websocket: true         // Enable EventEmitter interface for web3 (default: false)
     // },
+    
     //
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
