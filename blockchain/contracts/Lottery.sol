@@ -33,7 +33,6 @@ contract Lottery is VRFConsumerBase {
 
     function fulfillRandomness(bytes32 requestId, uint randomness) internal override {
         randomResult = randomness;
-        payWinner();
     }
 
     function getWinnerByLottery(uint lottery) public view returns (address payable) {
@@ -60,6 +59,7 @@ contract Lottery is VRFConsumerBase {
     }
 
     function payWinner() public {
+        require(randomResult > 0, "Must have a source of randomness before choosing winner");
         uint index = randomResult % players.length;
         players[index].transfer(address(this).balance);
 
@@ -68,6 +68,7 @@ contract Lottery is VRFConsumerBase {
         
         // reset the state of the contract
         players = new address payable[](0);
+        randomResult = 0;
     }
 
     modifier onlyowner() {
